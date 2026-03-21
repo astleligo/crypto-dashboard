@@ -50,8 +50,10 @@ app.get("/api/crypto", async (req, res) => {
         res.json(cache);
     } catch (error) {
         console.error(
-            "CRYPTO ERROR:",
-            error.response?.data || error.message
+            "CRYPTO ERROR FULL:",
+            error.response?.status,
+            error.response?.data,
+            error.message
         );
 
         res.status(500).json({ error: "Failed to fetch crypto data" });
@@ -74,8 +76,10 @@ app.get("/api/global", async (req, res) => {
         res.json(response.data.data);
     } catch (error) {
         console.error(
-            "GLOBAL ERROR:",
-            error.response?.data || error.message
+            "CRYPTO ERROR FULL:",
+            error.response?.status,
+            error.response?.data,
+            error.message
         );
 
         res.status(500).json({ error: "Failed to fetch global data" });

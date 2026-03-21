@@ -98,8 +98,13 @@ function App() {
     );
   }
 
-  if (error)
-    return <div className="min-h-screen flex items-center justify-center">{error}</div>;
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-500">
+        FAILED TO LOAD DATA ⚠️ (API LIMIT / NETWORK ISSUE)
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] text-black dark:bg-[#0e0e0e] dark:text-white transition-colors duration-300">
