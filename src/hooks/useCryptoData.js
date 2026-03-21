@@ -3,28 +3,35 @@ import { fetchCrypto } from "../utils/api";
 
 export const useCryptoData = () => {
     const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true); 
     const [error, setError] = useState(null);
+    const [refreshing, setRefreshing] = useState(false); 
 
-    const getData = async () => {
+    const getData = async (isInitial = false) => {
         try {
-            setLoading(true);
+            if (!isInitial) setRefreshing(true);
+
             const res = await fetchCrypto();
             setData(res);
             setError(null);
+
         } catch (err) {
             setError("Failed to fetch data");
         } finally {
-            setLoading(false);
+            setLoading(false);     
+            setRefreshing(false);  
         }
     };
 
     useEffect(() => {
-        getData();
+        getData(true); 
 
-        const interval = setInterval(getData, 30000); // auto refresh
+        const interval = setInterval(() => {
+            getData(false); 
+        }, 30000);
+
         return () => clearInterval(interval);
     }, []);
 
-    return { data, loading, error };
+    return { data, loading, error, refreshing };
 };

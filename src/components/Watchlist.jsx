@@ -2,13 +2,37 @@ import React from "react";
 
 const Watchlist = ({ watchlist }) => {
     return (
-        <div className="mt-4">
-            <h2 className="text-lg font-semibold">Watchlist</h2>
-            {watchlist.length === 0 && <p>No items added</p>}
+        <div className="space-y-3">
+
+            {watchlist.length === 0 && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 tracking-widest">
+                    NO_ITEMS_ADDED
+                </p>
+            )}
+
             {watchlist.map((coin) => (
-                <div key={coin.id} className="flex justify-between border-b py-2">
-                    <span>{coin.name}</span>
-                    <span>${coin.current_price}</span>
+                <div
+                    key={coin.id}
+                    className="
+                        flex justify-between items-center
+                        py-3 px-2
+                        border-b 
+                        border-gray-200 dark:border-gray-800
+                        text-sm
+                    "
+                >
+                    <div>
+                        <div className="font-medium text-black dark:text-white">
+                            {coin.name}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                            {coin.symbol.toUpperCase()}
+                        </div>
+                    </div>
+
+                    <div className="text-right font-semibold tabular-nums whitespace-nowrap text-black dark:text-white">
+                        ₹{coin.current_price.toLocaleString()}
+                    </div>
                 </div>
             ))}
         </div>
