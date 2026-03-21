@@ -7,6 +7,8 @@ import ThemeToggle from "./components/ThemeToggle";
 import Stats from "./components/Stats";
 import CryptoTable from "./components/CryptoTable";
 import Watchlist from "./components/Watchlist";
+import SkeletonTable from "./components/SkeletonTable";
+import SkeletonStats from "./components/SkeletonStats";
 
 function App() {
   const { data, loading, error } = useCryptoData();
@@ -87,8 +89,14 @@ function App() {
     setPage(1);
   }, [search]);
 
-  if (loading)
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f5f5f5] dark:bg-[#0e0e0e] p-6 space-y-6">
+        <SkeletonStats />
+        <SkeletonTable />
+      </div>
+    );
+  }
 
   if (error)
     return <div className="min-h-screen flex items-center justify-center">{error}</div>;
