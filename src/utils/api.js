@@ -1,17 +1,13 @@
 import axios from "axios";
-import { Sparklines } from "react-sparklines";
 
-const BASE_URL = "https://api.coingecko.com/api/v3";
+const BASE_URL = "https://crypto-dashboard-lcoo.onrender.com/api";
 
 export const fetchCrypto = async () => {
-    const res = await axios.get(`${BASE_URL}/coins/markets`, {
-        params: {
-            vs_currency: "inr",
-            order: "market_cap_desc",
-            per_page: 100,
-            price_change_percentage: "1h,24h,7d",
-            sparkline: true
-        }
-    });
+    const res = await axios.get(`${BASE_URL}/crypto`);
+    return res.data;
+};
+
+export const fetchGlobal = async () => {
+    const res = await axios.get(`${BASE_URL}/global`);
     return res.data;
 };
