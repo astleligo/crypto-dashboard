@@ -17,22 +17,16 @@ const PORT = process.env.PORT || 5000;
 let cache = null;
 let lastFetch = 0;
 
-// 🔥 CRYPTO API
-app.get("/api/crypto", async (req, res) => {
-    const now = Date.now();
-
-    if (cache && now - lastFetch < 60000) {
-        return res.json(cache);
-    }
-
+// 🔥 RETRY FUNCTION
+const fetchWithRetry = async (retries = 3) => {
     try {
-        const response = await axios.get(
+        return await axios.get(
             "https://api.coingecko.com/api/v3/coins/markets",
             {
                 params: {
                     vs_currency: "inr",
                     order: "market_cap_desc",
-                    per_page: 50,
+                    per_page: 20, // 🔥 IMPORTANT: reduce load
                     price_change_percentage: "1h,24h,7d",
                     sparkline: true,
                 },
@@ -40,9 +34,30 @@ app.get("/api/crypto", async (req, res) => {
                     "Accept": "application/json",
                     "User-Agent": "Mozilla/5.0",
                 },
-                timeout: 10000,
+                timeout: 15000,
             }
         );
+    } catch (err) {
+        if (retries > 0) {
+            console.log("Retrying API call...");
+            await new Promise((r) => setTimeout(r, 1000));
+            return fetchWithRetry(retries - 1);
+        }
+        throw err;
+    }
+};
+
+// 🔥 CRYPTO API
+app.get("/api/crypto", async (req, res) => {
+    const now = Date.now();
+
+    // ✅ 2 MIN CACHE
+    if (cache && now - lastFetch < 120000) {
+        return res.json(cache);
+    }
+
+    try {
+        const response = await fetchWithRetry();
 
         cache = response.data;
         lastFetch = now;
@@ -50,17 +65,24 @@ app.get("/api/crypto", async (req, res) => {
         res.json(cache);
     } catch (error) {
         console.error(
-            "CRYPTO ERROR FULL:",
+            "CRYPTO ERROR:",
             error.response?.status,
             error.response?.data,
             error.message
         );
 
-        res.status(500).json({ error: "Failed to fetch crypto data" });
+        // 🔥 FALLBACK (very important)
+        if (cache) {
+            return res.json(cache);
+        }
+
+        res.status(500).json({
+            error: "Failed to fetch crypto data",
+        });
     }
 });
 
-// 🔥 GLOBAL API (FIXED)
+// 🔥 GLOBAL API
 app.get("/api/global", async (req, res) => {
     try {
         const response = await axios.get(
@@ -70,27 +92,31 @@ app.get("/api/global", async (req, res) => {
                     "Accept": "application/json",
                     "User-Agent": "Mozilla/5.0",
                 },
+                timeout: 10000,
             }
         );
 
         res.json(response.data.data);
     } catch (error) {
         console.error(
-            "CRYPTO ERROR FULL:",
+            "GLOBAL ERROR:",
             error.response?.status,
             error.response?.data,
             error.message
         );
 
-        res.status(500).json({ error: "Failed to fetch global data" });
+        res.status(500).json({
+            error: "Failed to fetch global data",
+        });
     }
 });
 
 // 🔥 HEALTH CHECK
 app.get("/", (req, res) => {
-    res.send("🚀 Backend running");
+    res.send("🚀 Crypto Dashboard Backend Running");
 });
 
+// 🔥 START SERVER
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
 });
