@@ -32,7 +32,7 @@ app.get("/api/crypto", async (req, res) => {
                 params: {
                     vs_currency: "inr",
                     order: "market_cap_desc",
-                    per_page: 100,
+                    per_page: 50,
                     price_change_percentage: "1h,24h,7d",
                     sparkline: true,
                 },
