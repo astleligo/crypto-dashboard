@@ -14,14 +14,17 @@ export const getCrypto = async (req, res) => {
     }
 
     try {
-        const response = await fetchCrypto();
+        const data = await fetchCrypto(); // ✅ NOT response.data
 
-        cryptoCache = response.data;
+        cryptoCache = data;
         cryptoTime = now;
 
         res.json(cryptoCache);
     } catch (err) {
+        console.error("Crypto error:", err.message);
+
         if (cryptoCache) return res.json(cryptoCache);
+
         res.status(500).json({ error: "Crypto fetch failed" });
     }
 };

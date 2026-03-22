@@ -11,7 +11,12 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors({ origin: "*" }));
+app.use(cors({
+    origin: [
+        "http://localhost:5173",
+        "https://crypto-dashboard-one-dusky.vercel.app"
+    ]
+}));
 app.use(express.json());
 
 // DB
