@@ -10,10 +10,28 @@ import Watchlist from "./components/Watchlist";
 import SkeletonTable from "./components/SkeletonTable";
 import SkeletonStats from "./components/SkeletonStats";
 
+import Login from "./components/Login";
+import Signup from "./components/Signup";
+
+import {
+  getWatchlist,
+  addToWatchlist as addAPI,
+  removeFromWatchlist,
+} from "./utils/api";
+
 function App() {
   const { data, loading, error } = useCryptoData();
 
+  // 🔐 AUTH STATE
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    !!localStorage.getItem("token")
+  );
+  const [authMode, setAuthMode] = useState("login");
+
+  // ⭐ WATCHLIST
   const [watchlist, setWatchlist] = useState([]);
+
+  // UI STATES
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState("market_cap_rank");
   const [sortOrder, setSortOrder] = useState("asc");
@@ -28,6 +46,12 @@ function App() {
 
   const itemsPerPage = 10;
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+  };
+
+  // 🌙 THEME
   useEffect(() => {
     const root = document.documentElement;
 
@@ -40,26 +64,50 @@ function App() {
     }
   }, [dark]);
 
-  useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("watchlist")) || [];
-    setWatchlist(saved);
-  }, []);
-
-  const addToWatchlist = (coin) => {
-    const exists = watchlist.find((c) => c.id === coin.id);
-
-    const updated = exists
-      ? watchlist.filter((c) => c.id !== coin.id)
-      : [...watchlist, coin];
-
-    setWatchlist(updated);
-    localStorage.setItem("watchlist", JSON.stringify(updated));
+  // ⭐ LOAD WATCHLIST FROM DB
+  const loadWatchlist = async () => {
+    try {
+      const res = await getWatchlist();
+      setWatchlist(res);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
+  useEffect(() => {
+    if (isLoggedIn) {
+      loadWatchlist();
+    }
+  }, [isLoggedIn]);
+
+  // ⭐ ADD / REMOVE WATCHLIST
+  const addToWatchlist = async (coin) => {
+    const exists = watchlist.includes(coin.id);
+
+    // 🔥 instant UI update
+    setWatchlist((prev) =>
+      exists
+        ? prev.filter((id) => id !== coin.id)
+        : [...prev, coin.id]
+    );
+
+    try {
+      if (exists) {
+        await removeFromWatchlist(coin.id);
+      } else {
+        await addAPI(coin.id);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // 🔍 FILTER
   const filteredData = data.filter((coin) =>
     coin.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  // 🔽 SORT
   const sortedData = [...filteredData].sort((a, b) => {
     const valA = a[sortKey] ?? 0;
     const valB = b[sortKey] ?? 0;
@@ -69,6 +117,7 @@ function App() {
     return sortOrder === "asc" ? valA - valB : valB - valA;
   });
 
+  // 📄 PAGINATION
   const totalPages = Math.ceil(sortedData.length / itemsPerPage);
 
   const paginatedData = sortedData.slice(
@@ -89,6 +138,19 @@ function App() {
     setPage(1);
   }, [search]);
 
+  // 🔐 AUTH UI
+  if (!isLoggedIn) {
+    return authMode === "login" ? (
+      <Login
+        onLogin={() => setIsLoggedIn(true)}
+        switchToSignup={() => setAuthMode("signup")}
+      />
+    ) : (
+      <Signup switchToLogin={() => setAuthMode("login")} />
+    );
+  }
+
+  // ⏳ LOADING
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f5f5f5] dark:bg-[#0e0e0e] p-6 space-y-6">
@@ -98,17 +160,41 @@ function App() {
     );
   }
 
+  // ❌ ERROR
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-red-500">
-        FAILED TO LOAD DATA ⚠️ (API LIMIT / NETWORK ISSUE)
+      <div className="flex items-center justify-center py-16">
+        <div className="w-full max-w-md bg-white dark:bg-[#131313] border border-gray-200 dark:border-gray-800 rounded-2xl p-6 text-center shadow-sm">
+          <div className="text-4xl mb-3">⚠️</div>
+
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+            Unable to load data
+          </h2>
+
+          <p className="text-sm text-gray-500 mt-2">
+            API rate limit or network issue. Please try again shortly.
+          </p>
+
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-5 px-4 py-2 text-sm font-medium rounded-lg bg-black text-white dark:bg-white dark:text-black hover:opacity-80 transition"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
 
+  // ⭐ MAP WATCHLIST IDS → COIN OBJECTS
+  const watchlistCoins = data.filter((coin) =>
+    watchlist.includes(coin.id)
+  );
+
+  // 🧱 UI
   return (
     <div className="min-h-screen bg-[#f5f5f5] text-black dark:bg-[#0e0e0e] dark:text-white transition-colors duration-300">
-      <Header />
+      <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} />
 
       <main className="max-w-8xl mx-auto w-full px-4 py-6 space-y-6">
         <Stats />
@@ -160,12 +246,14 @@ function App() {
 
           {/* RIGHT */}
           <div className="space-y-4">
-            <div className="bg-white dark:bg-[#131313] border border-gray-200 dark:border-gray-800 p-4">
-              <h2 className="text-sm tracking-widest mb-4">MY_WATCHLIST</h2>
-              <Watchlist watchlist={watchlist} />
-            </div>
-
             <ThemeToggle dark={dark} setDark={setDark} />
+
+            <div className="bg-white dark:bg-[#131313] border border-gray-200 dark:border-gray-800 p-4">
+              <h2 className="text-sm tracking-widest mb-4">
+                MY_WATCHLIST
+              </h2>
+              <Watchlist watchlist={watchlistCoins} />
+            </div>
           </div>
         </div>
       </main>

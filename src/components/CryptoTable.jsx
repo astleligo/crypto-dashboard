@@ -8,9 +8,8 @@ const CryptoTable = ({
     watchlist,
     handleSort,
     sortKey,
-    sortOrder
+    sortOrder,
 }) => {
-
     const getColor = (value) =>
         typeof value === "number" && value > 0
             ? "text-[#00FFA3]"
@@ -24,8 +23,9 @@ const CryptoTable = ({
         return sortOrder === "asc" ? "↑" : "↓";
     };
 
-    const isSaved = (coin) =>
-        watchlist?.some((c) => c.id === coin.id);
+    const isSaved = (coin) => watchlist?.includes(coin.id);
+
+    console.log(data)
 
     return (
         <div className="w-full overflow-x-auto">
