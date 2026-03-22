@@ -37,14 +37,17 @@ export const getGlobal = async (req, res) => {
     }
 
     try {
-        const response = await fetchGlobal();
+        const data = await fetchGlobal(); // ✅
 
-        globalCache = response.data.data;
+        globalCache = data.data; // ✅ FIXED
         globalTime = now;
 
         res.json(globalCache);
     } catch (err) {
+        console.error("GLOBAL ERROR:", err); // 👈 ADD THIS
+
         if (globalCache) return res.json(globalCache);
-        res.json(null);
+
+        res.status(500).json({ error: "Global fetch failed" });
     }
 };

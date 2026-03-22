@@ -13,7 +13,7 @@ const Signup = ({ switchToLogin }) => {
             alert("Account created! Please login.");
             switchToLogin();
         } catch (err) {
-            alert("Signup failed");
+            alert("Signup failed",err);
         } finally {
             setLoading(false);
         }
