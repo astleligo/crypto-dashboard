@@ -22,13 +22,13 @@ import {
 function App() {
   const { data, loading, error } = useCryptoData();
 
-  // 🔐 AUTH STATE
+  // AUTH STATE
   const [isLoggedIn, setIsLoggedIn] = useState(
     !!localStorage.getItem("token")
   );
   const [authMode, setAuthMode] = useState("login");
 
-  // ⭐ WATCHLIST
+  // WATCHLIST
   const [watchlist, setWatchlist] = useState([]);
 
   // UI STATES
@@ -51,7 +51,7 @@ function App() {
     setIsLoggedIn(false);
   };
 
-  // 🌙 THEME
+  // THEME
   useEffect(() => {
     const root = document.documentElement;
 
@@ -64,7 +64,7 @@ function App() {
     }
   }, [dark]);
 
-  // ⭐ LOAD WATCHLIST FROM DB
+  // LOAD WATCHLIST FROM DB
   const loadWatchlist = async () => {
     try {
       const res = await getWatchlist();
@@ -80,11 +80,11 @@ function App() {
     }
   }, [isLoggedIn]);
 
-  // ⭐ ADD / REMOVE WATCHLIST
+  // ADD / REMOVE WATCHLIST
   const addToWatchlist = async (coin) => {
     const exists = watchlist.includes(coin.id);
 
-    // 🔥 instant UI update
+    // instant UI update
     setWatchlist((prev) =>
       exists
         ? prev.filter((id) => id !== coin.id)
@@ -102,12 +102,12 @@ function App() {
     }
   };
 
-  // 🔍 FILTER
+  // FILTER
   const filteredData = data.filter((coin) =>
     coin.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  // 🔽 SORT
+  // SORT
   const sortedData = [...filteredData].sort((a, b) => {
     const valA = a[sortKey] ?? 0;
     const valB = b[sortKey] ?? 0;
@@ -117,7 +117,7 @@ function App() {
     return sortOrder === "asc" ? valA - valB : valB - valA;
   });
 
-  // 📄 PAGINATION
+  // PAGINATION
   const totalPages = Math.ceil(sortedData.length / itemsPerPage);
 
   const paginatedData = sortedData.slice(
@@ -138,7 +138,7 @@ function App() {
     setPage(1);
   }, [search]);
 
-  // 🔐 AUTH UI
+  // AUTH UI
   if (!isLoggedIn) {
     return authMode === "login" ? (
       <Login
@@ -150,7 +150,7 @@ function App() {
     );
   }
 
-  // ⏳ LOADING
+  // LOADING
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f5f5f5] dark:bg-[#0e0e0e] p-6 space-y-6">
@@ -160,7 +160,7 @@ function App() {
     );
   }
 
-  // ❌ ERROR
+  // ERROR
   if (error) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -186,12 +186,12 @@ function App() {
     );
   }
 
-  // ⭐ MAP WATCHLIST IDS → COIN OBJECTS
+  // MAP WATCHLIST IDS → COIN OBJECTS
   const watchlistCoins = data.filter((coin) =>
     watchlist.includes(coin.id)
   );
 
-  // 🧱 UI
+  // UI
   return (
     <div className="min-h-screen bg-[#f5f5f5] text-black dark:bg-[#0e0e0e] dark:text-white transition-colors duration-300">
       <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} />

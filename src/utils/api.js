@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5000/api";
+const BASE_URL = "https://crypto-dashboard-lcoo.onrender.com/api";
 
 // Get token
 const getToken = () => localStorage.getItem("token");
@@ -8,7 +8,7 @@ const getToken = () => localStorage.getItem("token");
 // Axios instance
 const api = axios.create({
     baseURL: BASE_URL,
-}); 
+});
 
 // Attach token automatically
 api.interceptors.request.use((config) => {

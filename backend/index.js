@@ -24,11 +24,11 @@ app.use("/api/watchlist", watchlistRoutes);
 
 // Health
 app.get("/", (req, res) => {
-    res.send("🚀 Backend Running");
+    res.send("Backend Running");
 });
 
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on ${PORT}`);
+    console.log(`Server running on ${PORT}`);
 });
