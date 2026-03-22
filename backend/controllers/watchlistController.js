@@ -1,3 +1,5 @@
+import User from "../models/User.js";
+
 export const getWatchlist = async (req, res) => {
     try {
         if (!req.userId) {
