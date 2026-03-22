@@ -15,8 +15,13 @@ app.use(cors({
     origin: [
         "http://localhost:5173",
         "https://crypto-dashboard-one-dusky.vercel.app"
-    ]
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
 }));
+
+// 🔥 THIS FIXES PREFLIGHT (VERY IMPORTANT)
+app.options("*", cors());
 app.use(express.json());
 
 // DB
