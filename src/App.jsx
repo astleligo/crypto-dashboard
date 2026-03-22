@@ -163,24 +163,45 @@ function App() {
   // ERROR
   if (error) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <div className="w-full max-w-md bg-white dark:bg-[#131313] border border-gray-200 dark:border-gray-800 rounded-2xl p-6 text-center shadow-sm">
-          <div className="text-4xl mb-3">⚠️</div>
+      <div className="min-h-screen bg-black text-white relative flex items-center justify-center overflow-hidden">
 
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-            Unable to load data
+        {/* Grid Background */}
+        <div className="absolute inset-0 bg-[linear-gradient(#0f0f0f_1px,transparent_1px),linear-gradient(90deg,#0f0f0f_1px,transparent_1px)] bg-[size:40px_40px] opacity-40"></div>
+
+        {/* Glow Effect */}
+        <div className="absolute w-[600px] h-[600px] bg-green-500/10 blur-3xl rounded-full"></div>
+
+        <div className="relative text-center max-w-2xl px-6">
+
+          {/* Top Tag */}
+          <div className="inline-block px-3 py-1 text-xs tracking-widest bg-red-600 text-white mb-6">
+            CRITICAL SYSTEM INTERRUPT
+          </div>
+
+          {/* Main Title */}
+          <h1 className="text-6xl md:text-7xl font-bold tracking-wide">
+            429{" "}
+            <span className="text-green-400">—</span>{" "}
+            RATE LIMIT
+          </h1>
+
+          <h2 className="text-green-400 text-xl mt-3 tracking-widest">
+            EXCEEDED
           </h2>
 
-          <p className="text-sm text-gray-500 mt-2">
-            API rate limit or network issue. Please try again shortly.
-          </p>
 
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-5 px-4 py-2 text-sm font-medium rounded-lg bg-black text-white dark:bg-white dark:text-black hover:opacity-80 transition"
-          >
-            Retry
-          </button>
+          {/* Buttons */}
+          <div className="mt-8 flex justify-center gap-4 flex-wrap">
+
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-3 bg-gradient-to-r from-green-400 to-emerald-500 text-black font-semibold tracking-widest hover:opacity-90 transition"
+            >
+              RETRY ↻
+            </button>
+
+          </div>
+
         </div>
       </div>
     );
