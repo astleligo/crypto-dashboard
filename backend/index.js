@@ -83,30 +83,46 @@ app.get("/api/crypto", async (req, res) => {
 });
 
 // 🔥 GLOBAL API
+let globalCache = null;
+let globalLastFetch = 0;
+
 app.get("/api/global", async (req, res) => {
+    const now = Date.now();
+
+    // ✅ 5 min cache
+    if (globalCache && now - globalLastFetch < 300000) {
+        console.log("✅ GLOBAL CACHE HIT");
+        return res.json(globalCache);
+    }
+
     try {
+        console.log("❌ FETCHING GLOBAL FROM COINGECKO");
+
         const response = await axios.get(
-            "https://api.coingecko.com/api/v3/global",
-            {
-                headers: {
-                    "Accept": "application/json",
-                    "User-Agent": "Mozilla/5.0",
-                },
-                timeout: 10000,
-            }
+            "https://api.coingecko.com/api/v3/global"
         );
 
-        res.json(response.data.data);
+        globalCache = response.data.data;
+        globalLastFetch = now;
+
+        console.log(globalCache);
+
+
+        return res.json(globalCache);
     } catch (error) {
-        console.error(
-            "GLOBAL ERROR:",
-            error.response?.status,
-            error.response?.data,
-            error.message
-        );
+        console.error("GLOBAL ERROR:", error.response?.status);
 
-        res.status(500).json({
-            error: "Failed to fetch global data",
+        // ✅ fallback if rate limited
+        if (globalCache) {
+            console.log("⚠️ USING OLD GLOBAL CACHE");
+            return res.json(globalCache);
+        }
+
+        // ✅ fallback dummy (prevents crash)
+        return res.json({
+            total_market_cap: { usd: 0 },
+            total_volume: { usd: 0 },
+            market_cap_percentage: { btc: 0 },
         });
     }
 });

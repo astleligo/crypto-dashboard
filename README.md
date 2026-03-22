@@ -68,3 +68,27 @@ cd backend
 npm install
 node index.js
 http://localhost:5000
+
+
+---
+
+## 🌐 Live Demo
+
+- 🔗 Frontend (Vercel): https://crypto-dashboard-one-dusky.vercel.app/  
+- 🔗 Backend API (Render): https://crypto-dashboard-lcoo.onrender.com  
+
+---
+
+## 📡 API Endpoints
+
+Base URL: https://crypto-dashboard-lcoo.onrender.com
+
+- `/api/crypto` → Fetch cryptocurrency data  
+- `/api/global` → Fetch global market stats  
+
+
+## ⚠️ Note
+
+- The backend is hosted on Render (free tier), so it may take a few seconds to wake up on first request.
+- CoinGecko API has strict rate limits, so caching is implemented to reduce API calls and improve performance.
+- In rare cases, global stats may temporarily show fallback values due to API rate limits.
