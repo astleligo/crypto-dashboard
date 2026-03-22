@@ -20,8 +20,6 @@ app.use(cors({
     credentials: true
 }));
 
-// 🔥 THIS FIXES PREFLIGHT (VERY IMPORTANT)
-app.options("*", cors());
 app.use(express.json());
 
 // DB
